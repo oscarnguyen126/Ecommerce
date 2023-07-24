@@ -23,6 +23,12 @@ class ItemList(APIView):
 
         item = serializer.save()
         item.save()
+        for category_id in data['categories']:
+            try:
+                category = Category.objects.get(id=category_id)
+                item.categories.add(category)
+            except Category.DoesNotExist:
+                raise JsonResponse(serializer.errors, status=404)
         return JsonResponse(serializer.data, status=201, safe=False)
 
 
@@ -40,13 +46,20 @@ class ItemDetails(APIView):
     def put(self, request, pk):
         item = self.get_item(pk=pk)
         data = JSONParser().parse(request)
-        serializer = ItemSerializer(data=data)
+        serializer = ItemSerializer(item, data=data)
 
         if not serializer.is_valid():
             return JsonResponse(serializer.errors, status=400)
         
-        serializer.save()
+        item = serializer.save()
         item.save()
+        item.categories.clear()
+        for category_id in data['categories']:
+            try:
+                category = Category.objects.get(id=category_id)
+                item.categories.add(category)
+            except Category.DoesNotExist:
+                raise JsonResponse(serializer.errors, status=404)
         return JsonResponse(serializer.data, status=200)
 
 
@@ -72,7 +85,7 @@ class CategoryList(APIView):
 
         category = serializer.save()
         category.save()
-        return JsonResponse(serializer.data, status=200)
+        return JsonResponse(serializer.data, status=200, safe=False)
 
 
 class CategoryDetails(APIView):

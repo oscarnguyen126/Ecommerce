@@ -11,7 +11,7 @@ class Cart(models.Model):
     )
 
     def __str__(self):
-        return self.status
+        return str(self.user)
 
 
 class Category(models.Model):
@@ -27,7 +27,12 @@ class Item(models.Model):
     price = models.IntegerField()
     quantity = models.IntegerField()
     cart = models.ManyToManyField(Cart)
-    category = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category)
 
     def __str__(self):
         return self.name
+
+
+# class ModelForPivot(models.Model):
+#     item = models.ForeignKey(Item, on_delete=models.CASCADE)
+#     category = models.ForeignKey(Category, on_delete=models.CASCADE)
